@@ -42,8 +42,8 @@ def point_rep(df: pd.DataFrame, step_size_t: float, step_size_v: float, step_siz
     and num_e is the number of event columns.
     '''
     # Subset df and keep the following columns: pt, value_num, t_hr, e_0, e_1, e_2
-    e_columns = ['e{}'.format(i) for i in range(num_e)] + ['value_num']
-    df = df.loc[:, ['pt', 't_hr'] + ['e{}'.format(i) for i in range(num_e)] + ['value_num']]
+    e_columns = ['e{}'.format(i) for i in range(num_e)]
+    df = df.loc[:, ['pt', 't_hr'] + e_columns + ['value_num']]
     df.rename(columns={'t_hr': 't', 'value_num': 'v'}, inplace=True)
 
     # Initialize bin_t, step_size_t, bin_v, step_size_v, bin_e{}, step_size_e{}
@@ -58,7 +58,10 @@ def point_rep(df: pd.DataFrame, step_size_t: float, step_size_v: float, step_siz
     # Insert a column Fs
     df['Fs'] = calculate_F(df, num_e)
 
-    df.drop(columns=['t', 'v', *e_columns], inplace=True)
+    if num_e == 0:
+        df.drop(columns=['t', 'v'], inplace=True)
+    else:
+        df.drop(columns=['t', 'v', *e_columns], inplace=True)
     
     return df
 
@@ -131,6 +134,8 @@ def laplace_pooling(df: pd.DataFrame, col_suffix: str, step_size: float):
     df = sum_pooling(df)
 
     return df
+
+## multiple times of laplace pooling
 
 if __name__ == '__main__':
     df = main()
