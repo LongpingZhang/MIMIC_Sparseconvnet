@@ -1,15 +1,23 @@
+'''
+utils.py is used in particular for processing the "data/all.csv".
+'''
+
+
 import pandas as pd
-from pathlib import Path
+# from pathlib import Path
 import os
 import numpy as np
 from transformers import AutoTokenizer, AutoModel
 import torch
 import torch.nn as nn
 
-def import_csv(file_name):
-    # base_dir = os.environ['BASE_DIR']
-    base_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "../")
-    datafile_path = os.path.join(base_dir, "data/", file_name)
+def import_csv(csv_file_name):
+    '''
+    Import the clinical data from the directory 'data/'.
+    '''
+    base_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "../../../")
+    datafile_path = os.path.join(base_dir, "data/", csv_file_name)
+
     return pd.read_csv(datafile_path, delimiter="|")
 
 def preproces_df(df: pd.DataFrame):
@@ -23,6 +31,7 @@ def preproces_df(df: pd.DataFrame):
     df = df.dropna(subset = ['t', 'event'])
     # Drop duplicated rows.
     df = df.drop_duplicates()
+
     return df
 
 def value_trans(df: pd.DataFrame):
@@ -41,6 +50,7 @@ def value_trans(df: pd.DataFrame):
     ev_df.loc[r_indices, 'value'] = ev_df.loc[r_indices, 'value'].apply(lambda value: value.replace(',', '') 
                                                             if isinstance(value, str) else value)
     ev_df = ev_df.drop_duplicates()
+
     ev_df = label_encoding(ev_df)
 
     # Once we have all possible unique combinations of 'event'-'value' in ev_df,
